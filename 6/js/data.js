@@ -44,9 +44,10 @@ const uniquePhotoUrl = createUniqueNumber(1, URL_PHONO_COUNT);
 const createComments = (uniqueCommentAvatar, uniqueCommentMessage) => ({
   id: uniqueCommentId(),
   avatar: `img/avatar-${uniqueCommentAvatar()}.svg`,
-  message: MESSAGES[uniqueCommentMessage],
+  message: MESSAGES[uniqueCommentMessage()],
   name: getRandomArrayElement(NAMES),
 });
+
 
 const createRandomNumber = () => {
   const uniqueCommentMessage = createUniqueNumber (0,7);
@@ -59,6 +60,7 @@ const createRandomNumber = () => {
   return comments;
 };
 
+
 // объект 1
 const publishPhoto = () => ({
   id: uniquePhotoId(),
@@ -68,10 +70,11 @@ const publishPhoto = () => ({
   comments: createRandomNumber(),
 });
 
+
 // массив из объектов 1
 const createPublishPhoto = (count) => Array.from({length:count}, publishPhoto);
 
 
-export {createPublishPhoto, publishPhoto};
+export {createPublishPhoto};
 
 
