@@ -1,3 +1,4 @@
+import {onDocumentEscapeKeydown} from './form.js';
 const ALERT_SHOW_TIME = 7000;
 
 const isEscapeKey = (evt) => evt.key === 'Escape';
@@ -29,33 +30,28 @@ const debounce = (callback, timeoutDelay = 500) => {
   };
 };
 
-const body = document.querySelector('body');
-const success = document.querySelector('.success');
-const successInner = document.querySelector('.success__inner');
-const successButton = document.querySelector('.success__button');
-
-const closeMessagesModalWindow = () => success.classList.add('hidden');
-
-const onDocumentEscapeKeydown = (evt) => {
-  if (isEscapeKey(evt)) {
-    evt.preventDefault();
-    closeMessagesModalWindow();
-  }
-};
-
-document.addEventListener('click',(evt) => {
-  if (evt.target === successButton || evt.target !== successInner) {
-    closeMessagesModalWindow();
-  }
-});
-
 const showSuccessMessage = () => {
   const templateSuccess = document.querySelector('#success').content;
   const sectionSuccess = templateSuccess.querySelector('section');
   const cloneSectionSuccess = sectionSuccess.cloneNode(true);
-  body.appendChild(cloneSectionSuccess);
-
-  document.addEventListener('keydown', onDocumentEscapeKeydown);
+  document.body.appendChild(cloneSectionSuccess);
+  const successInner = document.querySelector('.success__inner');
+  const success = document.querySelector('.success');
+  const successButton = document.querySelector('.success__button');
+  document.addEventListener('keydown', (evt) => {
+    if (isEscapeKey(evt)) {
+      evt.preventDefault();
+      success.remove();
+      evt.stopPropagation();
+    }
+  });
+  successButton.addEventListener('click',() => success.remove());
+  document.addEventListener('click', (evt) => {
+    if(evt.target !== successInner) {
+      evt.preventDefault();
+      success.remove();
+    }
+  });
 };
 
 
@@ -63,8 +59,25 @@ const showErrorMessage = () => {
   const templateError = document.querySelector('#error').content;
   const sectionError = templateError.querySelector('section');
   const cloneSectionError = sectionError.cloneNode(true);
-  body.appendChild(cloneSectionError);
+  document.body.appendChild(cloneSectionError);
 
+  const errorInner = document.querySelector('.error__inner');
+  const error = document.querySelector('.error');
+  const errorButton = document.querySelector('.error__button');
+  document.removeEventListener('keydown', onDocumentEscapeKeydown);
+  document.addEventListener('keydown', (evt) => {
+    if (isEscapeKey(evt)) {
+      evt.preventDefault();
+      error.remove();
+    }
+  });
+  errorButton.addEventListener('click',() => error.remove());
+  document.addEventListener('click', (evt) => {
+    if(evt.target !== errorInner) {
+      evt.preventDefault();
+      error.remove();
+    }
+  });
 };
 
-export { isEscapeKey, showAlert, debounce, showSuccessMessage, showErrorMessage, closeMessagesModalWindow};
+export { isEscapeKey, showAlert, debounce, showSuccessMessage, showErrorMessage};
