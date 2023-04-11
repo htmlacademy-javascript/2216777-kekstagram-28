@@ -1,4 +1,5 @@
 import {loadComments} from './load-comments.js';
+import {isEscapeKey} from './universal.js';
 
 const bigPicture = document.querySelector('.big-picture');
 const commentList = bigPicture.querySelector('.social__comments');
@@ -6,7 +7,10 @@ const commentListItem = bigPicture.querySelector('.social__comment');
 const commentsCount = bigPicture.querySelector('.social__comment-count');
 const commentsLoader = bigPicture.querySelector('.comments-loader');
 const userModalCloseElement = bigPicture.querySelector('.cancel');
-const body = document.querySelector('body');
+const pictureUrl = bigPicture.querySelector('.big-picture__img').querySelector('img');
+const pictureDescription = bigPicture.querySelector('.social__caption');
+const pictureLikes = bigPicture.querySelector('.likes-count');
+const body = document.body;
 
 commentListItem.classList.add('hidden');
 
@@ -21,19 +25,12 @@ const renderComments = (comments) => {
 };
 
 const renderPictureComments = ({url, description, likes}) => {
-  bigPicture.querySelector('.big-picture__img').querySelector('img').src = url;
-  bigPicture.querySelector('.social__caption').textContent = description;
-  bigPicture.querySelector('.likes-count').textContent = likes;
+  pictureUrl.src = url;
+  pictureDescription.textContent = description;
+  pictureLikes.textContent = likes;
+
 };
 
-const closeUserModal = () => {
-  bigPicture.classList.add('hidden');
-  body.classList.remove('modal-open');
-};
-
-userModalCloseElement.addEventListener('click', () => closeUserModal ());
-
-const isEscapeKey = (evt) => evt.key === 'Escape';
 const onDocumentEscapeKeydown = (evt) => {
   if (isEscapeKey(evt)) {
     evt.preventDefault();
@@ -41,15 +38,23 @@ const onDocumentEscapeKeydown = (evt) => {
   }
 };
 
+function closeUserModal () {
+  bigPicture.classList.add('hidden');
+  body.classList.remove('modal-open');
+  document.removeEventListener('keydown', onDocumentEscapeKeydown);
+}
+
+userModalCloseElement.addEventListener('click', () => closeUserModal ());
+
 const showBigPicture = (data) => {
   bigPicture.classList.remove('hidden');
   body.classList.add('modal-open');
   commentsCount.classList.remove('hidden');
   commentsLoader.classList.remove('hidden');
   document.addEventListener('keydown', onDocumentEscapeKeydown);
-  renderPictureComments(data);
   renderComments(data.comments);
+  renderPictureComments(data);
   loadComments();
 };
 
-export {showBigPicture, isEscapeKey};
+export {showBigPicture};

@@ -1,7 +1,8 @@
-import {isEscapeKey} from './big-picture.js';
+import {isEscapeKey} from './universal.js';
 import {onDocumentEscapeKeydown} from './form.js';
 
 const ALERT_SHOW_TIME = 7000;
+const body = document.body;
 
 const showAlert = (message) => {
   const alert = document.createElement('div');
@@ -15,7 +16,7 @@ const showAlert = (message) => {
   alert.style.textAlign = 'center';
   alert.style.backgroundColor = 'red';
   alert.textContent = message;
-  document.body.append(alert);
+  body.append(alert);
 
   setTimeout(() => {
     alert.remove();
@@ -26,46 +27,47 @@ const createElementMessage = (selector) => {
   const template = document.querySelector(selector).content;
   const sectionElement = template.querySelector('section');
   const cloneElement = sectionElement.cloneNode(true);
-  document.body.appendChild(cloneElement);
+  body.append(cloneElement);
 };
 
-const showSuccessMessage = () => {
-  createElementMessage('#success');
-  const successInner = document.querySelector('.success__inner');
-  const success = document.querySelector('.success');
-  const successButton = document.querySelector('.success__button');
-
-  document.addEventListener('keydown', (evt) => {
-    if(isEscapeKey(evt)) {
-      success.remove();
-    }
-  });
-  successButton.addEventListener('click',() => success.remove());
-  document.addEventListener('click', (evt) => {
-    if(evt.target !== successInner) {
-      success.remove();
-    }
-  });
+const onEscapeClick = (evt) => {
+  if(isEscapeKey(evt)) {
+    containerClose ();
+  }
 };
 
+let containerInner;
+const onOutOfContainerClick = (evt) => {
+  if(evt.target !== containerInner) {
+    containerClose ();
+  }
+};
+
+let button;
+const onButtonClick = () => containerClose ();
+
+let container;
+function containerClose () {
+  container.remove();
+  document.removeEventListener('keydown', onEscapeClick);
+  document.removeEventListener('click', onOutOfContainerClick);
+  button.addEventListener('click', onButtonClick);
+}
+
+const getMessages = (templateMessage,sectionMessage,divMessage,buttonMessage) => {
+  createElementMessage(templateMessage);
+  container = document.querySelector(sectionMessage);
+  containerInner = document.querySelector(divMessage);
+  button = document.querySelector(buttonMessage);
+  document.addEventListener('click', onOutOfContainerClick);
+  document.addEventListener('keydown', onEscapeClick);
+  button.addEventListener('click', onButtonClick);
+};
+
+const showSuccessMessage = () => getMessages('#success','.success','.success__inner','.success__button');
 const showErrorMessage = () => {
-  createElementMessage('#error');
-  const errorInner = document.querySelector('.error__inner');
-  const error = document.querySelector('.error');
-  const errorButton = document.querySelector('.error__button');
-
+  getMessages('#error','.error','.error__inner','.error__button');
   document.removeEventListener('keydown', onDocumentEscapeKeydown);
-  document.addEventListener('keydown', (evt) => {
-    if(isEscapeKey(evt)) {
-      error.remove();
-    }
-  });
-  errorButton.addEventListener('click',() => error.remove());
-  document.addEventListener('click',(evt) => {
-    if(evt.target !== errorInner) {
-      error.remove();
-    }
-  });
 };
 
 export {showAlert, showSuccessMessage, showErrorMessage};

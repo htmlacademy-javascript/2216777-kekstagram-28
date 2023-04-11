@@ -2,6 +2,7 @@ import {resetScale} from './scale.js';
 import {resetEffects} from './effects.js';
 import { sendData } from './api.js';
 import {showSuccessMessage, showErrorMessage} from './messages.js';
+import {isEscapeKey} from './universal.js';
 
 const TAG_ERROR_TEXT = 'Неправильно заполнено поле';
 const COMMENT_ERROR_TEXT_MAXLENGTH = 'Длина комментария не может составлять больше 140 символов';
@@ -14,7 +15,7 @@ const SubmitButtonText = {
   IDLE: 'Повторить отправку',
 };
 
-const body = document.querySelector('body');
+const body = document.body;
 const submitButton = document.querySelector('#upload-submit');
 const uploadFileField = document.querySelector('#upload-file');
 const modalShow = document.querySelector('.img-upload__overlay');
@@ -78,7 +79,7 @@ const closeFormModalWindow = () => {
 };
 
 function onDocumentEscapeKeydown (evt) {
-  if (evt.key === 'Escape' && !(document.activeElement === hashtagsField || document.activeElement === commentField)) {
+  if (isEscapeKey && !(document.activeElement === hashtagsField || document.activeElement === commentField)) {
     evt.preventDefault();
     closeFormModalWindow();
   }
@@ -97,22 +98,20 @@ const unblockSubmitButton = () => {
   submitButton.textContent = SubmitButtonText.IDLE;
 };
 
-const formSubmit = () => {
-  form.addEventListener('submit',(evt) => {
-    evt.preventDefault();
-    if (pristine.validate()) {
-      blockSubmitButton();
-      sendData(new FormData(evt.target))
-        .then(() => {
-          closeFormModalWindow();
-          showSuccessMessage();
-        })
-        .catch(() => {
-          showErrorMessage();
-        })
-        .finally(unblockSubmitButton);
-    }
-  });
-};
+form.addEventListener('submit',(evt) => {
+  evt.preventDefault();
+  if (pristine.validate()) {
+    blockSubmitButton();
+    sendData(new FormData(evt.target))
+      .then(() => {
+        closeFormModalWindow();
+        showSuccessMessage();
+      })
+      .catch(() => {
+        showErrorMessage();
+      })
+      .finally(unblockSubmitButton);
+  }
+});
 
-export {closeFormModalWindow, unblockSubmitButton, onDocumentEscapeKeydown, formSubmit};
+export {closeFormModalWindow, unblockSubmitButton, onDocumentEscapeKeydown,};
